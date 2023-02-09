@@ -7,6 +7,7 @@ import validation.Validator;
 import java.io.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class DataReader {
@@ -20,7 +21,6 @@ public class DataReader {
             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
             String line = bufferedReader.readLine();
             while (line != null){
-//                System.out.println(line);
                 String[] splitArray = line.split(", ");
                 int employeeId = Integer.parseInt(splitArray[0]);
                 int projectId = Integer.parseInt(splitArray[1]);
@@ -34,9 +34,21 @@ public class DataReader {
                 if (isValidEmployeeId && isValidProjectId && isValidDateFrom && isValidDateTo){
                     LocalDate localDateFrom = LocalDateParser.parseDate(dateFrom);
                     LocalDate localDateTo = Validator.getTodayDateTo(dateTo);
-                    EmployeeData employeeData = new EmployeeData(employeeId, projectId
-                            , localDateFrom, localDateTo);
-                    employeeDataList.add(employeeData);
+                    try {
+                        boolean isValidPeriod = Validator.isValidPeriod(localDateFrom, localDateTo);
+                        if (isValidPeriod){
+                            EmployeeData employeeData = new EmployeeData(employeeId, projectId
+                                    , localDateFrom, localDateTo);
+                            employeeDataList.add(employeeData);
+                        } else {
+                            throw new IllegalStateException("Illegal input period!");
+                        }
+                    } catch (IllegalStateException illegalStateException){
+                        System.out.println("Exception: " + illegalStateException.getMessage()
+                                + Arrays.toString(illegalStateException.getStackTrace()));
+                        break;
+                    }
+
                 }
 
                 line = bufferedReader.readLine();
